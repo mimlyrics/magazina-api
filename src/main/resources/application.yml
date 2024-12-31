@@ -1,0 +1,35 @@
+server:
+  port: 5000
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/ecommerce
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format-sql: true
+    show-sql: true
+  main:
+    web-application-type: servlet
+  web:
+    resources:
+      static-locations:
+        - classpath:/static/
+        - file:./uploads/
+  resources:
+    add-mappings: false
+
+  servlet:
+    multipart:
+      enabled: true                # Enable multipart file uploads
+      max-file-size: 10MB          # Maximum size of an individual file
+      max-request-size: 20MB       # Maximum size of a full request (including all files and form data)
+      file-size-threshold: 2KB
+
+logging:
+  level:
+    org.springframework.web: DEBUG
