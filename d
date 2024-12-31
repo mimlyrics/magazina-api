@@ -3,9 +3,9 @@ services:
     container_name: postgres
     image: postgres
     environment:
-      POSTGRES_USER: mimche
-      POSTGRES_PASSWORD: miEykIRS90pK5kMTVHTNVUXx9VGfiFsP
-      POSTGRES_DB: ecommerce_xf71
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ecommerce
       PGDATA: /data/postgres
     volumes:
       - db:/data/postgres

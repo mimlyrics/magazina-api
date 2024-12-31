@@ -1,38 +1,33 @@
-git# Use the official OpenJDK image as the base image
+
+# Use the official OpenJDK image as the base image for building
 FROM openjdk:17-jdk-slim as build
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the Maven or Gradle build files (pom.xml for Maven or build.gradle for Gradle)
+# Copy the Maven build configuration file
 COPY pom.xml .
-# If you are using Gradle instead of Maven, use: COPY build.gradle .
 
-# Download dependencies to cache them
-RUN ./mvnw dependency:go-offline -B  # If you're using Maven Wrapper
-# Or, if using Gradle:
-# RUN ./gradlew build --no-daemon --parallel
+# Download dependencies and go offline
+COPY .mvn/ .mvn
+COPY mvnw .
+RUN ./mvnw dependency:go-offline -B
 
-# Copy the rest of the source code into the container
+# Copy the entire project and build the application
 COPY . .
+RUN ./mvnw clean package -DskipTests
 
-# Build the application using Maven or Gradle
-RUN ./mvnw clean package -DskipTests  # If you're using Maven Wrapper
-# Or, if using Gradle:
-# RUN ./gradlew build --no-daemon
-
-# Use a new image to run the application
+# Use the same JDK image for the runtime environment
 FROM openjdk:17-jdk-slim
 
-# Set the working directory for the runtime image
+# Set the working directory for the runtime
 WORKDIR /app
 
 # Copy the built JAR file from the build stage
 COPY --from=build /app/target/*.jar app.jar
-# If you're using Gradle, the JAR file might be under 'build/libs'
 
-# Expose the port your Spring Boot app will run on (default is 8080)
+# Expose the application's port
 EXPOSE 5000
 
-# Run the Spring Boot application
+# Define the command to run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

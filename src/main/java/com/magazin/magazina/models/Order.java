@@ -1,5 +1,6 @@
 package com.magazin.magazina.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -21,8 +22,9 @@ public class Order {
 
     private double totalCost;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(targetEntity = Customer.class)
+    @JoinColumn(name = "customer_id")
+    @JsonBackReference("customer-orders")
     private User customer;
 
     // Use @JsonManagedReference on the parent side (Order) to manage the serialization of the relationship

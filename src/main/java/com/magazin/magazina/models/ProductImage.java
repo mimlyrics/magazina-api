@@ -2,6 +2,7 @@ package com.magazin.magazina.models;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ public class ProductImage {
 
     @ManyToOne
     @JoinColumn(name="product_id")
-    @JsonBackReference("product-images")
+    @JsonManagedReference("product-images")
     private Product product;
 
     public String getImageUrl() {

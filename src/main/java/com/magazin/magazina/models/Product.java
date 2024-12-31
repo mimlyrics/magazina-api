@@ -40,27 +40,19 @@ public class Product {
     @Column(nullable = true)
     private Double height;
 
-    @ManyToOne
-    @JoinColumn(name="category_id")
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name="category_id", referencedColumnName = "id", columnDefinition = "INTEGER")
+    @JsonBackReference("productCategory-product")
     private ProductCategory productCategory;
-    @Column(updatable = false)
 
+    @Column(nullable = true)
     private LocalDateTime createdAt;
 
+    @Column(nullable = true, updatable = false)
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("product-images")
+    @JsonBackReference("product-images")
     private List <ProductImage> images;
 
     @ManyToOne
@@ -174,4 +166,13 @@ public class Product {
     public void setImages(List<ProductImage> images) {
         this.images = images;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
 }

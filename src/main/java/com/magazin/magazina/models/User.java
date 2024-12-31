@@ -55,6 +55,10 @@ public class User implements UserDetails {
     @JsonBackReference("user-supplier")
     private Supplier supplier;
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY) // Customer owns the relationship
+    @JsonManagedReference("user-customer")
+    private Customer customer;
+
     @OneToMany(mappedBy = "createdBy")
     @JsonManagedReference("user-created-stock")
     private List <Stock> createdStocks;

@@ -6,9 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-
-import java.time.Instant;
 import java.time.LocalDateTime;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,9 +33,15 @@ public class Customer {
     private String country;   // Optional country field
     private String postalCode;// Optional postal code field
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY) // Use FetchType.LAZY to avoid unnecessary loading
+    @JoinColumn(name = "user_id", referencedColumnName = "id", columnDefinition = "INTEGER")
+    @JsonBackReference("user-customer")
     private User user;
+
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference("customer-orders")
+    private List<Order> orders = new ArrayList<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -94,6 +101,10 @@ public class Customer {
         return country;
     }
 
+    public List<Order> getOrders() {
+        return orders;
+    }
+
     public void setCountry(String country) {
         this.country = country;
     }
@@ -129,6 +140,7 @@ public class Customer {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
 
 }
 

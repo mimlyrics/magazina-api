@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,12 +33,9 @@ public class Supplier {
     @JsonManagedReference("user-supplier")
     private User user;
 
-    @CreatedDate
-    @Column(updatable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
     public Integer getId() {
         return id;
@@ -57,5 +55,21 @@ public class Supplier {
 
     public void setTaxId(String taxId) {
         this.taxId = taxId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public User getUser() {
+        return user;
     }
 }
