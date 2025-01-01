@@ -2,6 +2,7 @@ package com.magazin.magazina.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.magazin.magazina.models.Category;
+import com.magazin.magazina.repositories.CategoryRepository;
 import com.magazin.magazina.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -11,8 +12,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -22,12 +28,15 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    private static final String UPLOAD_DIR = "/upload";
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Category> createCategory(
             @RequestParam("name") String name,
             @RequestParam(value = "file", required = false) MultipartFile file) {
-
+        String UPLOAD_DIR = "uploads/";
         System.out.println("Received name: " + name);
         System.out.println("Received file: " + file);
 
@@ -35,7 +44,7 @@ public class CategoryController {
         if (file != null && !file.isEmpty()) {
             try {
                 // Define the directory to store the uploaded file
-                String directoryPath = UPLOAD_DIR + "/categories/" + name;
+                String directoryPath = UPLOAD_DIR + "categories/" + name;
                 File directory = new File(directoryPath);
 
                 // Create parent directories if they do not exist
@@ -43,24 +52,40 @@ public class CategoryController {
                     System.out.println("Failed to create directory: " + directoryPath);
                     return ResponseEntity.status(500).body(null);  // Return error if directory creation fails
                 }
+                    // List to hold uploaded file paths (if needed for multiple files)
+                    List<String> imagePaths = new ArrayList<>();
 
-                // Sanitize the file name to avoid potential issues
-                String sanitizedFileName = file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.-]", "_");
-                String filePath = directoryPath + "/" + sanitizedFileName;
 
-                // Save the file to the server
-                File targetFile = new File(filePath);
-                file.transferTo(targetFile);
+                        // Ensure the directory exists
+                        Path categoryPath = Paths.get(directoryPath);
+                        if (!Files.exists(categoryPath)) {
+                            Files.createDirectories(categoryPath); // Creates the directory and any nonexistent parent directories
+                            System.out.println("Directory created successfully: " + categoryPath);
+                        }
+
+                        // Get original file name and sanitize it
+                        String filename = file.getOriginalFilename().replaceAll("[^a-zA-Z0-9._-]", "_");
+                        System.out.println("Sanitized file name: " + filename);
+
+                        // Construct the file path
+                        Path filePath = categoryPath.resolve(filename);
+
+                        // Write the file to the directory
+                        Files.write(filePath, file.getBytes());
+                        System.out.println("File uploaded successfully: " + filePath);
+
+                        // Add file path to the list (useful for response or multiple files)
+                        imagePaths.add(filePath.toString());
 
                 // Create a new Category object and set properties
                 Category category = new Category();
                 category.setName(name);
                 category.setCreatedAt(LocalDateTime.now());
                 category.setUpdatedAt(LocalDateTime.now());
-                category.setImageUrl(filePath);  // Set the file path (or URL)
+                category.setImageUrl(filePath.toString());  // Set the file path (or URL)
 
                 // Save the category in the database (assuming a categoryRepository is available)
-                // categoryRepository.save(category);
+                categoryRepository.save(category);
 
                 // Return the created category in the response
                 return ResponseEntity.ok(category);
@@ -81,25 +106,95 @@ public class CategoryController {
             category.setImageUrl(null);  // No image URL
 
             // Save the category in the database (assuming a categoryRepository is available)
-            // categoryRepository.save(category);
+             categoryRepository.save(category);
 
             // Return the created category in the response
             return ResponseEntity.ok(category);
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Category> updateCategory(
-            @PathVariable Integer id,
-            @RequestPart("category") Category category,
-            @RequestPart(value = "file", required = false) MultipartFile file) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteCategory(@PathVariable Integer id, @RequestBody Category category) {
+        // Find category by name
+        /*Optional<Category> categoryOptional = categoryRepository.findByName(name);
+        if (categoryOptional.isEmpty()) {
+            return ResponseEntity.status(404).body("Category not found");
+        }
+
+        Category category = categoryOptional.get();
+        String imageUrl = category.getImageUrl();*/
+
         try {
-            Category updatedCategory = categoryService.updateCategory(id, category, file);
-            return ResponseEntity.ok(updatedCategory);
+            // Delete the image file if it exists
+            if (category.getImageUrl() != null && !category.getImageUrl().isEmpty()) {
+                Path imagePath = Paths.get(category.getImageUrl());
+                Files.deleteIfExists(imagePath);
+            }
+
+            // Delete the category record from the database
+            categoryRepository.deleteById(id);
+
+            return ResponseEntity.ok("Category deleted successfully");
         } catch (IOException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(500).body("Error deleting category: " + e.getMessage());
         }
     }
+
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Category> editCategory(
+            @PathVariable("id") Integer id, // Changed from @RequestParam to @PathVariable
+            @RequestParam("name") String name,
+            @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        // Find the category by ID
+        Optional<Category> categoryOptional = categoryRepository.findById(id);
+        if (categoryOptional.isEmpty()) {
+            return ResponseEntity.status(404).body(null);
+        }
+
+        Category category = categoryOptional.get();
+        String oldImageUrl = category.getImageUrl();
+
+        try {
+            // Handle file replacement if a new file is provided
+            if (file != null && !file.isEmpty()) {
+                // Delete the old file if it exists
+                if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
+                    Path oldImagePath = Paths.get(oldImageUrl);
+                    Files.deleteIfExists(oldImagePath);
+                }
+
+                // Save the new file
+                String UPLOAD_DIR = "uploads/";
+                String directoryPath = UPLOAD_DIR + "categories/" + name;
+                Path categoryPath = Paths.get(directoryPath);
+                if (!Files.exists(categoryPath)) {
+                    Files.createDirectories(categoryPath);
+                }
+
+                String newFileName = file.getOriginalFilename().replaceAll("[^a-zA-Z0-9._-]", "_");
+                Path newFilePath = categoryPath.resolve(newFileName);
+                Files.write(newFilePath, file.getBytes());
+
+                // Update the category's image URL
+                category.setImageUrl(newFilePath.toString());
+            }
+
+            // Update category details
+            category.setName(name);
+            category.setUpdatedAt(LocalDateTime.now());
+
+            // Save the updated category in the database
+            categoryRepository.save(category);
+
+            return ResponseEntity.ok(category);
+
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
 
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
@@ -113,9 +208,4 @@ public class CategoryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
-        categoryService.deleteCategory(id);
-        return ResponseEntity.noContent().build();
-    }
 }
