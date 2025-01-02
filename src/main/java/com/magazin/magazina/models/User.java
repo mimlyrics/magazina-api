@@ -37,8 +37,14 @@ public class User implements UserDetails {
 
     private String firstname;
     private String lastname;
+
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = true)
     private String phone;
+
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -51,11 +57,11 @@ public class User implements UserDetails {
     @LastModifiedDate
     private Instant updatedAt;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.EAGER)
     @JsonBackReference("user-supplier")
     private Supplier supplier;
 
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY) // Customer owns the relationship
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY) // Customer owns the relationship
     @JsonManagedReference("user-customer")
     private Customer customer;
 

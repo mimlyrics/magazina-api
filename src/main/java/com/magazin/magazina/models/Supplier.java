@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -29,8 +31,9 @@ public class Supplier {
     private String taxId;
 
     @OneToOne(cascade = CascadeType.ALL,  fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", columnDefinition = "INTEGER")
+    @JoinColumn(name = "user_id", nullable = true, referencedColumnName = "id", columnDefinition = "INTEGER")
     @JsonManagedReference("user-supplier")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private User user;
 
     private LocalDateTime createdAt;

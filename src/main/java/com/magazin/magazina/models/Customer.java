@@ -33,8 +33,8 @@ public class Customer {
     private String country;   // Optional country field
     private String postalCode;// Optional postal code field
 
-    @OneToOne(fetch = FetchType.LAZY) // Use FetchType.LAZY to avoid unnecessary loading
-    @JoinColumn(name = "user_id", referencedColumnName = "id", columnDefinition = "INTEGER")
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Use FetchType.LAZY to avoid unnecessary loading
+    @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "id", columnDefinition = "INTEGER")
     @JsonBackReference("user-customer")
     private User user;
 

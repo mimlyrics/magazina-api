@@ -1,5 +1,6 @@
 package com.magazin.magazina.auth;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,25 +69,45 @@ public class AuthenticationController {
 
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponse> authenticate(
+            @RequestBody AuthenticationRequest request,
+            HttpServletResponse response,
+            @CookieValue(name = "jwt", required = false) String existingJwt) {
+
         AuthenticationResponse authResponse = service.authenticate(request);
 
         if (authResponse == null) {
             return ResponseEntity.status(401).body(null);  // Unauthorized if authentication fails
         }
 
+        // Clear existing JWT cookie if it exists
+        if (existingJwt != null) {
+            clearCookie("jwt", response);
+        }
+
+        // Create and set the new JWT cookie
         ResponseCookie jwtCookie = ResponseCookie.from("jwt", authResponse.getToken())
                 .httpOnly(true)
                 .secure(false) // Set to true in production
                 .sameSite("None")
                 .path("/")
-                .maxAge(14 * 24 * 60 * 60 * 100)
+                .maxAge(14 * 24 * 60 * 60) // Set max age to 14 days
                 .build();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body(authResponse);
     }
+
+    // Utility method to clear the cookie
+    private void clearCookie(String cookieName, HttpServletResponse response) {
+        Cookie cookie = new Cookie(cookieName, null);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // Expire the cookie immediately
+        response.addCookie(cookie);
+    }
+
 
     // Logout method
     @PostMapping("/logout")

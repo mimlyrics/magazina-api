@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -18,13 +20,16 @@ public class OrderItem {
 
     private Integer quantity;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    @JsonBackReference  // Prevent infinite recursion when serializing
+    @JsonBackReference("order-orderItem")  // Prevent infinite recursion when serializing
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Order order;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
+    @JsonBackReference("orderItem-product")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Product product;
 
     @Column(nullable = true, updatable = false)

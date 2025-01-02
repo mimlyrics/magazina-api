@@ -27,8 +27,9 @@ public class Category {
     @JsonManagedReference("category-productCategory")
     private List <ProductCategory> productCategories;
 
-
     private LocalDateTime createdAt;
+
+    @Column(updatable = false)
     private LocalDateTime updatedAt;
 
     public String getName() {
@@ -67,5 +68,9 @@ public class Category {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<ProductCategory> getProductCategories() {
+        return productCategories;
     }
 }

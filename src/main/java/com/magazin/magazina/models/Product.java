@@ -6,6 +6,8 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -40,9 +42,10 @@ public class Product {
     @Column(nullable = true)
     private Double height;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name="category_id", referencedColumnName = "id", columnDefinition = "INTEGER")
     @JsonBackReference("productCategory-product")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private ProductCategory productCategory;
 
     @Column(nullable = true)
@@ -55,9 +58,14 @@ public class Product {
     @JsonBackReference("product-images")
     private List <ProductImage> images;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = false)
+    @JsonManagedReference("orderItem-product")
+    List <OrderItem> orderItems;
+
     @ManyToOne
     @JoinColumn(name = "supplier_id")
     @JsonBackReference("product-supplier")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Supplier supplier;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)

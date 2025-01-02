@@ -31,6 +31,18 @@ public class CategoryController {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    // Endpoint to fetch subcategories by parent category name
+    @GetMapping("/subcategories")
+    public ResponseEntity<?> getSubcategoriesByParentName(@RequestParam String parentName) {
+        List<Category> subcategories = categoryRepository.findByName(parentName);
+
+        if (subcategories.isEmpty()) {
+            return ResponseEntity.badRequest().body("No subcategories found for the parent category: " + parentName);
+        }
+
+        return ResponseEntity.ok(subcategories);
+    }
+
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Category> createCategory(

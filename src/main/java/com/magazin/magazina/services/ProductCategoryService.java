@@ -1,5 +1,6 @@
 package com.magazin.magazina.services;
 
+import com.magazin.magazina.models.Category;
 import com.magazin.magazina.models.ProductCategory;
 import com.magazin.magazina.repositories.ProductCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductCategoryService {
@@ -15,13 +17,17 @@ public class ProductCategoryService {
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
 
-    public List<ProductCategory> getAllProductCategories() {
-        return productCategoryRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+
+
+
+    public List<ProductCategory> getAllCategories() {
+        return productCategoryRepository.findAll();
     }
 
-    public ProductCategory getProductCategoryById(Integer id) {
-        return productCategoryRepository.findById(id).orElseThrow();
+    public Optional<ProductCategory> getCategoryById(Integer id) {
+        return productCategoryRepository.findById(id);
     }
+
 
     public ProductCategory createProductCategory(@RequestBody ProductCategory productCategoryRequest) {
         ProductCategory productCategory1 = new ProductCategory();

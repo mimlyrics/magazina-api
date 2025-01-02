@@ -28,8 +28,8 @@ public class Order {
     private User customer;
 
     // Use @JsonManagedReference on the parent side (Order) to manage the serialization of the relationship
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval =false)
+    @JsonManagedReference("order-orderItem")
     private List<OrderItem> orderItems;
 
     private String paymentMethod;  // Added payment method at the Order level

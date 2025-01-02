@@ -30,9 +30,11 @@ public class AuthenticationService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register (RegisterRequest request) {
-        //System.out.println(request);
-        //System.out.println(request);
+    public AuthenticationResponse register(RegisterRequest request) {
+        // Check if the email already exists in the database
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("User already exists, use another email");
+        }
 
         Validation validation = new Validation();
         Role role = validation.ValidateRole(request.getRole());
@@ -42,10 +44,12 @@ public class AuthenticationService {
                 .lastname(request.getLastname())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(role).build();
+                .role(role)
+                .build();
+
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
-        System.out.println(jwtToken);
+
         return AuthenticationResponse.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -55,6 +59,7 @@ public class AuthenticationService {
                 .role(role)
                 .build();
     }
+
 
     /*public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(

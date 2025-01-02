@@ -7,10 +7,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -30,9 +33,10 @@ public class ProductCategory {
         return name;
     }
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id", referencedColumnName = "id", columnDefinition = "INTEGER")
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id",referencedColumnName = "id", columnDefinition = "INTEGER")
     @JsonBackReference("category-productCategory")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Category category;
 
     @OneToMany(mappedBy = "productCategory")
@@ -42,6 +46,11 @@ public class ProductCategory {
     public void setName(String name) {
         this.name = name;
     }
+
+    private LocalDateTime createdAt;
+
+    @Column(updatable = false)
+    private LocalDateTime updatedAt;
 
     public Integer getId() {
         return id;
@@ -59,4 +68,27 @@ public class ProductCategory {
         this.imageUrl = imageUrl;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

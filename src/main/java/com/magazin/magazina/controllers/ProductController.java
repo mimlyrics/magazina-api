@@ -1,14 +1,12 @@
 package com.magazin.magazina.controllers;
 
-import com.magazin.magazina.models.Product;
-import com.magazin.magazina.models.ProductCategory;
-import com.magazin.magazina.models.ProductImage;
-import com.magazin.magazina.models.Supplier;
+import com.magazin.magazina.models.*;
 import com.magazin.magazina.repositories.*;
 import com.magazin.magazina.services.ProductService;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +43,31 @@ public class ProductController {
     @Autowired
     private SupplierRepository supplierRepository;
     //private static final String UPLOAD_DIR = "uploads/";
+
+    @GetMapping("category/{category}")
+    public ResponseEntity<List<Product>> getProductsByCategoryName(@PathVariable String category) {
+        try {
+            // Fetch products by category name
+            List<Product> products = productRepository.findAllByProductCategory_Name(category);
+
+            if (products.isEmpty()) {
+                // Return 404 if no products are found
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+
+            // Return the list of products with an OK status
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            // Log the exception for debugging purposes
+            e.printStackTrace();
+
+            // Return 500 Internal Server Error in case of an exception
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> createProduct(
             @RequestParam(value = "name", required = false) String name,

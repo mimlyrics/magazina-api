@@ -32,7 +32,7 @@ public class StockService {
     @Autowired
     private ProductRepository productRepository;
 
-    public Stock updateStock (Integer id, Stock updatedStock, String token) {
+    public Stock updateStock(Integer id, Stock updatedStock, String token) {
         // Extract the user ID from the token (used for createdBy/updatedBy)
         String userId = jwtService.getUserIdFromToken(token);
         System.out.println(userId);
@@ -41,11 +41,27 @@ public class StockService {
         if (existingStockOptional.isPresent()) {
             Stock existingStock = existingStockOptional.get();
 
-            // Set the 'updatedBy' field
-            //existingStock.setUpdatedBy(userId);
+            // Adjust stock quantity based on movementType
+            String movementType = updatedStock.getMovementType().toString();
+            int quantityChange = updatedStock.getQuantity();
 
-            // Update the necessary fields
-            existingStock.setQuantity(updatedStock.getQuantity());
+            switch (movementType) {
+                case "DEPARTURE":
+                    existingStock.setQuantity(existingStock.getQuantity() - quantityChange);
+                    break;
+                case "TRANSFERRED":
+                    existingStock.setQuantity(existingStock.getQuantity() - quantityChange);
+                    break;
+                case "ARRIVAL":
+                    existingStock.setQuantity(existingStock.getQuantity() + quantityChange);
+                    break;
+                default:
+                    throw new RuntimeException("Invalid movement type: " + movementType);
+            }
+
+            // Set additional fields
+            existingStock.setMovementType(updatedStock.getMovementType());
+            existingStock.setMovementReason(updatedStock.getMovementReason());
             existingStock.setSku(updatedStock.getSku());
             existingStock.setReorderLevel(updatedStock.getReorderLevel());
             existingStock.setStatus(updatedStock.getStatus());
@@ -57,38 +73,52 @@ public class StockService {
         }
     }
 
-    //@Transactional
-    // If creating a new stock, set the createdBy field as well
     public Stock createStock(Stock newStock, String token) {
-        System.out.println("\n\n\n\n\n\n\n\n");
         String userId = jwtService.getUserIdFromToken(token);
-        System.out.println(userId);
-
-        System.out.println("\n\n\n\nUser: " + userId);
         Integer userIdx = Integer.parseInt(userId);
-        System.out.println(newStock.getProduct());
+
         // Fetch the Product entity based on the productId passed in the request
-        Product product = productRepository.findById(newStock.getProduct().getId()) // Assuming newStock.getProduct() has only the id set
+        Product product = productRepository.findById(newStock.getProduct().getId())
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + newStock.getProduct().getId()));
-
-        Stock newStock1 = new Stock();
-
-        System.out.println(newStock);
 
         // Fetch the user entity from the database
         User user = userRepository.findById(userIdx)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userIdx));
+
+        Stock newStock1 = new Stock();
+
+        // Set fields for the new stock
         newStock1.setCreatedBy(user);
-        //Hibernate.initialize(newStock1.getCreatedBy()); // Force initialization
         newStock1.setCreatedAt(LocalDateTime.now());
         newStock1.setQuantity(newStock.getQuantity());
         newStock1.setReorderLevel(newStock.getReorderLevel());
-        newStock1.setProduct(newStock.getProduct());
+        newStock1.setProduct(product);
         newStock1.setSku(newStock.getSku());
         newStock1.setStatus(newStock.getStatus());
+        newStock1.setMovementType(newStock.getMovementType());
+        newStock1.setMovementReason(newStock.getMovementReason());
+
+        // Adjust quantity based on movementType
+        String movementType = newStock.getMovementType().toString();
+        int quantityChange = newStock.getQuantity();
+
+        switch (movementType) {
+            case "DEPARTURE":
+                newStock1.setQuantity(newStock1.getQuantity() - quantityChange);
+                break;
+            case "TRANSFERRED":
+                newStock1.setQuantity(newStock1.getQuantity() - quantityChange);
+                break;
+            case "ARRIVAL":
+                newStock1.setQuantity(newStock1.getQuantity() + quantityChange);
+                break;
+            default:
+                throw new RuntimeException("Invalid movement type: " + movementType);
+        }
 
         return stockRepository.save(newStock1); // Save the new stock
     }
+
 
 
 
