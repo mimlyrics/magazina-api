@@ -17,7 +17,7 @@ import static com.magazin.magazina.models.Permission.*;
 @RequiredArgsConstructor
 public enum Role {
 
-    USER(Collections.emptySet()),
+    /*USER(Collections.emptySet()),
     ADMIN(
             Set.of(
                     ADMIN_READ,
@@ -43,9 +43,14 @@ public enum Role {
             Set.of(
                     SUPPLIER_READ
             )
-    );
+    );*/
 
-    @Getter
+    USER,
+    MANAGER,
+    SUPPLIER,
+    ADMIN;
+
+    /*@Getter
     private final Set <Permission> permissions;
 
     public List<SimpleGrantedAuthority> getAuthorities() {
@@ -55,6 +60,6 @@ public enum Role {
         authorities.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
 
         return authorities;
-    }
+    }*/
 
 }

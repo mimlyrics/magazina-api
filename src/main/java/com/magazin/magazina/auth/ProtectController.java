@@ -34,7 +34,10 @@ public class ProtectController {
                     .parseClaimsJws(token)
                     .getBody();
 
+            // Retrieve the role directly from the claims
             String userRole = claims.get("role", String.class);
+
+            System.out.println("USER role " + userRole);
 
             if (userRole == null) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Role not found in token");
@@ -46,4 +49,6 @@ public class ProtectController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
     }
+
 }
+

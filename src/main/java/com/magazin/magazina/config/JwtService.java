@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -30,21 +31,31 @@ public class JwtService {
     }
 
 
-    // Method to generate token using UserDetails
     public String generateToken(UserDetails userDetails) {
         // Extract the user-specific information (user id, username, role)
         Integer userId = ((User) userDetails).getId();  // Assuming CustomUserDetails has getUserId method
         String username = userDetails.getUsername();
-        String role = userDetails.getAuthorities().toArray()[0].toString();  // Assuming user has only one role
+
+        // Retrieve the role directly from the User object (assumes 'getRole' method exists in your User class)
+        String role = String.valueOf(((User) userDetails).getRole());  // Assuming User class has a 'getRole' method
+
+        // If the role is null or empty, default to "USER"
+        if (role == null || role.isEmpty()) {
+            role = "USER";
+        }
+
+        System.out.println("\n\n\nRole: " + role);  // Debugging line to check the role value
 
         // Create a map of additional claims
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("userId", String.valueOf(userId));
         extraClaims.put("username", username);
-        extraClaims.put("role", role);
+        extraClaims.put("role", role);  // Store the role name (e.g., ADMIN, USER)
 
-        return generateToken(extraClaims, userDetails);
+        return generateToken(extraClaims, userDetails);  // Generate the token
     }
+
+
 
     // Refactored method to generate token with extra claims
     public String generateToken(

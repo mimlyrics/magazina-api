@@ -37,7 +37,8 @@ public class AuthenticationService {
         }
 
         Validation validation = new Validation();
-        Role role = validation.ValidateRole(request.getRole());
+        Role role = validation.validateRole(request.getRole());
+        System.out.println("role: " + role);
 
         var user = User.builder()
                 .firstname(request.getFirstname())
