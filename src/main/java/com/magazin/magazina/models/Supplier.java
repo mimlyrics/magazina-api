@@ -1,7 +1,9 @@
 package com.magazin.magazina.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,23 +34,30 @@ public class Supplier {
     private String taxId;
 
     @OneToOne(cascade = CascadeType.ALL,  fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = true, referencedColumnName = "id", columnDefinition = "INTEGER")
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonManagedReference("user-supplier")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    //@OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     private LocalDateTime createdAt;
 
+    @Column(updatable = false)
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "supplier", orphanRemoval = false)
+    @JsonManagedReference("supplier-products")
+    private List <Product> products;
 
     public Integer getId() {
         return id;
     }
 
+    @JsonProperty("address")
     public String getAddress() {
         return address;
     }
 
+    @JsonProperty("taxId")
     public String getTaxId() {
         return taxId;
     }
@@ -68,6 +78,7 @@ public class Supplier {
         return updatedAt;
     }
 
+    @JsonProperty("name")
     public String getName() {
         return name;
     }

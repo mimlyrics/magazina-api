@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import java.time.LocalDateTime;
@@ -36,6 +38,7 @@ public class Customer {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Use FetchType.LAZY to avoid unnecessary loading
     @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "id", columnDefinition = "INTEGER")
     @JsonBackReference("user-customer")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
 

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,28 +50,24 @@ public class SupplierController {
     }
 
     @PutMapping("/promote/{userId}")
-    public ResponseEntity<?> promoteToSupplier(@PathVariable Integer userId, @RequestBody Supplier supplierRequest) {
+    public ResponseEntity<?> promoteToSupplier(
+            @PathVariable Integer userId,
+            @RequestBody Supplier supplierRequest) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
 
         User user = userOptional.get();
-        System.out.println(user);
-        System.out.println("\n\n\n\n\n");
-        System.out.println(user.getRole());
         if (user.getRole() == Role.SUPPLIER) {
             return ResponseEntity.badRequest().body("User is already a supplier");
         }
 
-        System.out.println(Role.SUPPLIER.name());
-
-        System.out.println("\n\n\nxxxxxxx");
-
-        // Update role and create supplier data
         user.setRole(Role.SUPPLIER);
+
         Supplier supplier = new Supplier();
         supplier.setUser(user);
+        supplier.setCreatedAt(LocalDateTime.now());
         supplier.setName(supplierRequest.getName());
         supplier.setAddress(supplierRequest.getAddress());
         supplier.setTaxId(supplierRequest.getTaxId());
@@ -80,4 +77,5 @@ public class SupplierController {
 
         return ResponseEntity.ok("User promoted to supplier successfully");
     }
+
 }

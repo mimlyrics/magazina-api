@@ -55,17 +55,17 @@ public class Product {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference("product-images")
+    @JsonManagedReference("product-images")
     private List <ProductImage> images;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = false)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("orderItem-product")
     List <OrderItem> orderItems;
 
     @ManyToOne
     @JoinColumn(name = "supplier_id")
-    @JsonBackReference("product-supplier")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonBackReference("supplier-products")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Supplier supplier;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
