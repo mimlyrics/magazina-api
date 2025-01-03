@@ -6,6 +6,8 @@ spring:
     url: jdbc:postgresql://dpg-ctq01hggph6c73digek0-a.oregon-postgres.render.com:5432/ecommerce_xf71
     username: mimche
     password: miEykIRS90pK5kMTVHTNVUXx9VGfiFsP
+    hikari:
+      maximum-pool-size: 10   # Adjust the pool size according to your needs
   jpa:
     hibernate:
       ddl-auto: update
