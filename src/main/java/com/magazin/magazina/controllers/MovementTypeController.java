@@ -7,7 +7,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.List;
-
+@CrossOrigin(
+        origins = "https://magazina.onrender.com", // Frontend URL
+        allowedHeaders = "*", // Allow all headers
+        methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.OPTIONS}, // Allowed methods
+        allowCredentials = "true" // Allow credentials like cookies
+)
 @RestController
 @RequestMapping("/api/v1/movement-types")
 public class MovementTypeController {
