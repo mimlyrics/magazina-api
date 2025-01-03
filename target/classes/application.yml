@@ -3,12 +3,12 @@ server:
   port: 5000
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/ecommerce
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://dpg-ctq01hggph6c73digek0-a.oregon-postgres.render.com:5432/ecommerce_xf71
+    username: mimche
+    password: miEykIRS90pK5kMTVHTNVUXx9VGfiFsP
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
