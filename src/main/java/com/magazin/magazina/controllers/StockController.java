@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @CrossOrigin(
-        origins = "http://localhost:3000", // Frontend URL
+        origins = "https://magazina.onrender.com", // Frontend URL
         allowedHeaders = "*", // Allow all headers
         methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.OPTIONS}, // Allowed methods
         allowCredentials = "true" // Allow credentials like cookies
