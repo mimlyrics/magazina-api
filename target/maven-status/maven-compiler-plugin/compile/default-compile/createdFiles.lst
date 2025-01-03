@@ -40,6 +40,7 @@ com/magazin/magazina/request/OrderItemRequest.class
 com/magazin/magazina/repositories/ProductImageRepository.class
 com/magazin/magazina/controllers/customerController.class
 com/magazin/magazina/models/Permission.class
+com/magazin/magazina/auth/ProtectController.class
 com/magazin/magazina/controllers/StockController.class
 com/magazin/magazina/auth/AuthenticationController.class
 com/magazin/magazina/models/Role.class

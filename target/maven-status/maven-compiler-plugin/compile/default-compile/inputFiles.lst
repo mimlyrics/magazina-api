@@ -22,6 +22,7 @@
 /home/mimche/Downloads/magazina/src/main/java/com/magazin/magazina/config/JwtAuthenticationFilter.java
 /home/mimche/Downloads/magazina/src/main/java/com/magazin/magazina/auth/AuthResponse.java
 /home/mimche/Downloads/magazina/src/main/java/com/magazin/magazina/config/SecurityConfiguration.java
+/home/mimche/Downloads/magazina/src/main/java/com/magazin/magazina/auth/ProtectController.java
 /home/mimche/Downloads/magazina/src/main/java/com/magazin/magazina/controllers/MovementTypeController.java
 /home/mimche/Downloads/magazina/src/main/java/com/magazin/magazina/controllers/ProductCategoryController.java
 /home/mimche/Downloads/magazina/src/main/java/com/magazin/magazina/models/ProductCategory.java
